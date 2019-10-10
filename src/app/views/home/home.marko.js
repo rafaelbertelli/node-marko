@@ -28,16 +28,16 @@ function render(input, out, __component, component, state) {
   }, null, null, null, __component, "0");
 
   var livrosPromise = new Promise((resolve, reject) => {
-   setTimeout(function() {
-       resolve([
-           {
-               titulo: 'Cangaceiro Node'
-           },
-           {
-               titulo: 'Node na prática'
-           }
-       ]);
-   }, 1000);
+  setTimeout(function() {
+    resolve([
+      {
+        titulo: 'Cangaceiro Node'
+      },
+      {
+        titulo: 'Node na prática'
+      }
+    ]);
+  }, 3000);
 });
 
   await_tag({
