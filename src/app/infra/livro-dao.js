@@ -19,20 +19,23 @@ class LivroDao {
     });
   }
 
-  lista(bookId) {
+  lista() {
     return new Promise((resolve, reject) => {
-      let query = "SELECT * FROM livros";
-
-      if (!!bookId) {
-        query = `SELECT * FROM livros WHERE id = ${bookId}`;
-      }
-
-      this._db.all(query, (erro, resultados) => {
-        if (erro) {
-          return reject(erro);
-        }
+      this._db.all("SELECT * FROM livros", (erro, resultados) => {
+        if (erro) return reject("Não foi possível listar os livros!");
 
         return resolve(resultados);
+      });
+    });
+  }
+
+  buscaPorId(id) {
+    return new Promise((resolve, reject) => {
+      this._db.get(`SELECT * FROM livros WHERE id = ?`, [id], (erro, livro) => {
+        if (erro) {
+          return reject("Não foi possível encontrar o livro!");
+        }
+        return resolve(livro);
       });
     });
   }
@@ -40,13 +43,8 @@ class LivroDao {
   atualiza(livro) {
     return new Promise((resolve, reject) => {
       this._db.run(
-        "UPDATE livros SET titulo = $titulo, preco = $preco, descricao = $descricao WHERE id = $id",
-        {
-          $id: livro.id,
-          $titulo: livro.titulo,
-          $preco: livro.preco,
-          $descricao: livro.descricao
-        },
+        `UPDATE livros SET titulo = ?, preco = ?, descricao = ? WHERE id = ?`,
+        [livro.titulo, livro.preco, livro.descricao, livro.id],
         erro => {
           if (erro) {
             return reject("Não foi possível atualizar o livro!");
@@ -58,14 +56,13 @@ class LivroDao {
     });
   }
 
-  exclui(id) {
+  remove(id) {
     return new Promise((resolve, reject) => {
-      this._db.run("DELETE FROM livros WHERE id = ?", id, erro => {
+      this._db.get(`DELETE FROM livros WHERE id = ?`, [id], erro => {
         if (erro) {
-          return reject("Não foi possível excluir o livro!");
+          return reject("Não foi possível remover o livro!");
         }
-
-        resolve();
+        return resolve();
       });
     });
   }
