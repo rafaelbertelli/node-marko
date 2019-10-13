@@ -6,62 +6,59 @@ module.exports = app => {
     res.marko(require("../views/home/home.marko"));
   });
 
+  app.get("/livros", function(req, res) {
+    const livroDao = new LivroDao(db);
+    livroDao
+      .lista()
+      .then(livros =>
+        res.marko(require("../views/livros/lista/lista.marko"), { livros })
+      )
+      .catch(console.log);
+  });
+
   app.get("/livros/form", function(req, res) {
-    res.marko(require("../views/livros/form/form.marko"));
+    res.marko(require("../views/livros/form/form.marko"), { livro: {} });
   });
 
-  app.get("/livros/:id", async function(req, res) {
+  app.get("/livros/form/:id", function(req, res) {
+    const id = req.params.id;
     const livroDao = new LivroDao(db);
 
-    try {
-      const livros = await livroDao.lista(req.params.id);
-      res.marko(require("../views/livros/lista/lista.marko"), { livros });
-    } catch (e) {
-      console.log(e);
-    }
+    livroDao
+      .buscaPorId(id)
+      .then(livro =>
+        res.marko(require("../views/livros/form/form.marko"), { livro })
+      )
+      .catch(console.log);
   });
 
-  app.get("/livros/", async function(req, res) {
+  app.post("/livros", function(req, res) {
+    console.log(req.body);
     const livroDao = new LivroDao(db);
 
-    try {
-      const livros = await livroDao.lista();
-      res.marko(require("../views/livros/lista/lista.marko"), { livros });
-    } catch (e) {
-      console.log(e);
-    }
+    livroDao
+      .adiciona(req.body)
+      .then(res.redirect("/livros"))
+      .catch(console.log);
   });
 
-  app.post("/livros", async function(req, res) {
+  app.put("/livros", function(req, res) {
+    console.log(req.body);
     const livroDao = new LivroDao(db);
 
-    try {
-      await livroDao.adiciona(req.body);
-      res.redirect("/livros");
-    } catch (erro) {
-      erro => console.log(erro);
-    }
+    livroDao
+      .atualiza(req.body)
+      .then(res.redirect("/livros"))
+      .catch(console.log);
   });
 
-  app.put("/livros", async function(req, res) {
+  app.delete("/livros/:id", function(req, res) {
+    const id = req.params.id;
+
     const livroDao = new LivroDao(db);
-
-    try {
-      await livroDao.atualiza(req.body);
-      res.redirect("/livros");
-    } catch (erro) {
-      res.status(404).send("Something broke!");
-    }
-  });
-
-  app.delete("/livros/:id", async function(req, res) {
-    const livroDao = new LivroDao(db);
-
-    try {
-      await livroDao.exclui(req.params.id);
-      res.redirect("/livros");
-    } catch (erro) {
-      res.status(404).send("Something broke!");
-    }
+    livroDao
+      .remove(id)
+      .then(() => res.status(200).end())
+      .catch(console.log);
   });
 };
