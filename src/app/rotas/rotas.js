@@ -1,27 +1,32 @@
 const db = require("../../config/database");
 const LivroDao = require("../infra/livro-dao");
 
-const _getLivros = res => {
-  const livroDao = new LivroDao(db);
-
-  return livroDao
-    .lista()
-    .then(livros =>
-      res.marko(require("../views/livros/lista/lista.marko"), {
-        livros
-      })
-    )
-    .catch(erro => erro);
-};
-
 module.exports = app => {
   app.get("/", function(req, res) {
     res.marko(require("../views/home/home.marko"));
   });
 
-  app.get("/livros", async function(req, res) {
+  app.get("/livros/form", function(req, res) {
+    res.marko(require("../views/livros/form/form.marko"));
+  });
+
+  app.get("/livros/:id", async function(req, res) {
+    const livroDao = new LivroDao(db);
+
     try {
-      await _getLivros(res);
+      const livros = await livroDao.lista(req.params.id);
+      res.marko(require("../views/livros/lista/lista.marko"), { livros });
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  app.get("/livros/", async function(req, res) {
+    const livroDao = new LivroDao(db);
+
+    try {
+      const livros = await livroDao.lista();
+      res.marko(require("../views/livros/lista/lista.marko"), { livros });
     } catch (e) {
       console.log(e);
     }
@@ -38,7 +43,25 @@ module.exports = app => {
     }
   });
 
-  app.get("/livros/form", function(req, res) {
-    res.marko(require("../views/livros/form/form.marko"));
+  app.put("/livros", async function(req, res) {
+    const livroDao = new LivroDao(db);
+
+    try {
+      await livroDao.atualiza(req.body);
+      res.redirect("/livros");
+    } catch (erro) {
+      res.status(404).send("Something broke!");
+    }
+  });
+
+  app.delete("/livros/:id", async function(req, res) {
+    const livroDao = new LivroDao(db);
+
+    try {
+      await livroDao.exclui(req.params.id);
+      res.redirect("/livros");
+    } catch (erro) {
+      res.status(404).send("Something broke!");
+    }
   });
 };
