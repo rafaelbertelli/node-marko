@@ -5,7 +5,11 @@
 
 ## Authors / Autores
  
- - Rafael Borges
+ - [Rafael Borges](https://github.com/rafaelbertelli)
+
+## Contributors / Contribuidores
+ 
+ - [Valéria Padilha de Vargas](https://github.com/ValchanOficial)
 
 ## Setup / Configurações
 
